@@ -1,18 +1,9 @@
-// import React from 'react';
-// import ReactDOM from 'react-dom';
-// import './index.css';
-// import App from './App';
-// import * as serviceWorker from './serviceWorker';
-//
-// ReactDOM.render(<App />, document.getElementById('root'));
-//
-// // If you want your app to work offline and load faster, you can change
-// // unregister() to register() below. Note this comes with some pitfalls.
-// // Learn more about service workers: https://bit.ly/CRA-PWA
-// serviceWorker.unregister();
-// //npm install -g redux --save
-
-import {createStore, combineReducers} from "redux";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import {createStore, combineReducers, applyMiddleware} from "redux";
+import {Provider} from "react-redux";
 
 const initialState = {
     salary: 15000,
@@ -54,7 +45,11 @@ const salaryReducer = (state=initialState, action) => {
     return state;
 };
 
-const store = createStore(combineReducers({salaryReducer, employeeReducer}));
+const myLogger = (store) => (next) => (action) => {
+    console.log("Log Action :", action);
+    next(action);
+};
+const store = createStore(combineReducers({salary:salaryReducer, employee:employeeReducer}), {}, applyMiddleware(myLogger));
 
 store.subscribe(() => {
     console.log("Update Store :", store.getState());
@@ -79,3 +74,10 @@ store.dispatch({
     type: "setAge",
     payload: 18
 });
+
+ReactDOM.render(
+    <Provider store={store}>
+        <App />
+    </Provider>
+    , document.getElementById('root')
+);
